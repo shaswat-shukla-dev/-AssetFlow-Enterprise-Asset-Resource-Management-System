@@ -1,6 +1,7 @@
 import { validationResult } from "express-validator";
 
 import { registerUser } from "../services/auth.service.js";
+import { loginUser } from "../services/auth.service.js";
 
 import {
     successResponse,
@@ -42,5 +43,37 @@ export const register = async (req, res) => {
         );
 
     }
+
+};
+export const login = async (req, res) => {
+
+    try {
+
+        const data = await loginUser(req.body);
+
+        return successResponse(
+            res,
+            "Login Successful",
+            data
+        );
+
+    } catch (error) {
+
+        return errorResponse(
+            res,
+            error.message,
+            401
+        );
+
+    }
+
+};
+export const profile = async (req,res)=>{
+
+    return successResponse(
+        res,
+        "Profile fetched successfully",
+        req.user
+    );
 
 };
