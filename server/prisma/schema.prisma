@@ -6,3 +6,118 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  email       String?  @unique
+  phone       String?
+  address     String?
+
+  departments Department[]
+  employees   Employee[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Department {
+  id             String   @id @default(cuid())
+
+  name           String
+  code           String
+
+  organizationId String
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  employees       Employee[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([organizationId, code])
+}
+
+model Role {
+  id          String   @id @default(cuid())
+
+  name        String   @unique
+
+  description String?
+
+  users       User[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Employee {
+
+  id              String @id @default(cuid())
+
+  employeeCode    String @unique
+
+  firstName       String
+
+  lastName        String
+
+  email           String @unique
+
+  phone           String?
+
+  designation     String
+
+  organizationId  String
+
+  departmentId    String
+
+  organization    Organization @relation(fields: [organizationId], references: [id])
+
+  department      Department @relation(fields: [departmentId], references: [id])
+
+  user            User?
+
+  createdAt       DateTime @default(now())
+
+  updatedAt       DateTime @updatedAt
+
+  @@index([organizationId])
+
+  @@index([departmentId])
+
+}
+
+model User {
+
+  id            String @id @default(cuid())
+
+  username      String @unique
+
+  email         String @unique
+
+  password      String
+
+  status        UserStatus @default(ACTIVE)
+
+  employeeId    String @unique
+
+  roleId        String
+
+  employee      Employee @relation(fields: [employeeId], references: [id])
+
+  role          Role @relation(fields: [roleId], references: [id])
+
+  createdAt     DateTime @default(now())
+
+  updatedAt     DateTime @updatedAt
+
+  @@index([roleId])
+
+}
